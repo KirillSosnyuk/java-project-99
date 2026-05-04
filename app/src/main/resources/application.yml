@@ -1,0 +1,23 @@
+logging:
+  level:
+    root: WARN
+    org:
+      springframework:
+        security: DEBUG
+
+spring:
+  jpa:
+    generate-ddl: true
+    show-sql: true
+  output:
+    ansi:
+      enabled: always
+
+rsa:
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
+
+sentry:
+  dsn: https://781e58f79860b15642b66839f4d482af@o4511332810555393.ingest.de.sentry.io/4511332812652624
+  send-default-pii: true
+  traces-sample-rate: 1.0
