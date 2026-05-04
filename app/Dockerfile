@@ -1,5 +1,5 @@
 # Используем образ с JDK 23
-FROM eclipse-temurin:23-jdk
+FROM eclipse-temurin:21-jdk
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
