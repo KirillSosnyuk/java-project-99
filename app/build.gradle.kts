@@ -9,6 +9,10 @@ plugins {
 	id("org.sonarqube") version "7.2.2.6593"
 }
 
+application {
+	mainClass.set("hexlet.code.AppApplication")
+}
+
 group = "hexlet.code"
 version = "0.0.1-SNAPSHOT"
 
