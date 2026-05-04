@@ -1,19 +1,21 @@
-# Используем образ с JDK 23
-FROM eclipse-temurin:21-jdk
+# Используем стабильный образ с JDK 25
+FROM gradle:8.7-jdk21
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем все файлы проекта
+# Копируем всё содержимое проекта в контейнер
 COPY . .
 
-# Даем права на выполнение Gradle Wrapper (важно для CI/CD и пайплайнов)
+# Исправляем права доступа для Gradle Wrapper
+# Если ваш gradlew лежит внутри папки 'code', измените путь на 'code/gradlew'
 RUN chmod +x gradlew
 
-# Собираем проект через Wrapper, чтобы не зависеть от системного gradle.
-# Флаг --no-daemon критически важен для Docker, чтобы не оставлять фоновых процессов.
-RUN ./gradlew installDist --no-daemon
+# Сборка проекта
+# Добавляем флаг отключения автозагрузки JDK, чтобы Gradle использовал системную Java 25
+RUN ./gradlew installDist --no-daemon -Porg.gradle.java.installations.auto-download=false
 
-# Команда запуска.
-# Убедитесь, что имя 'app' совпадает с названием проекта в settings.gradle.kts
+# Команда запуска
+# ВНИМАНИЕ: Проверьте, что путь build/install/app/bin/app верный.
+# Если проект называется иначе, измените 'app' на ваше имя проекта.
 CMD ./build/install/app/bin/app
