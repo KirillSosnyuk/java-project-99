@@ -5,7 +5,7 @@ plugins {
 	id("io.freefair.lombok") version "8.6"
 	id("org.springframework.boot") version "3.5.0"
 	id("io.spring.dependency-management") version "1.1.5"
-	id("io.sentry.jvm.gradle") version "6.1.0"
+	id("io.sentry.jvm.gradle") version "6.6.0"
 	id("org.sonarqube") version "7.2.2.6593"
 }
 
@@ -81,6 +81,14 @@ sonar {
 				.absolutePath
 		)
 	}
+}
+
+sentry {
+	includeSourceContext = false
+
+	org = "hexlet-project"
+	projectName = "java-spring-boot"
+	authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
 
 tasks.test {
