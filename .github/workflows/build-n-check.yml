@@ -21,19 +21,15 @@ jobs:
 
 
       - name: Make gradlew executable
-        working-directory: ./app
         run: chmod +x gradlew
 
       - name: Run Build And Test
-        working-directory: ./app
         run: ./gradlew build
 
       - name: Run Checkstyle
-        working-directory: ./app
         run: ./gradlew checkstyleMain checkstyleTest
 
       - name: Jacoco Test Report
-        working-directory: ./app
         run: ./gradlew jacocoTestReport
 
       - name: Cache SonarQube packages
@@ -51,7 +47,6 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Sonar
-        working-directory: ./app
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
