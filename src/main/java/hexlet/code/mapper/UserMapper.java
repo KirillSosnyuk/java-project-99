@@ -4,6 +4,7 @@ import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
 import hexlet.code.model.User;
+import hexlet.code.repository.projection.UserSummaryProjection;
 
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;
@@ -30,6 +31,8 @@ public abstract class UserMapper {
     }
 
     public abstract UserDTO map(User model);
+
+    public abstract UserDTO map(UserSummaryProjection projection);
 
     public abstract User map(UserCreateDTO dto);
 

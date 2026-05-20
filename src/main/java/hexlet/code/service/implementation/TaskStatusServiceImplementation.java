@@ -8,13 +8,14 @@ import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.service.TaskStatusService;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class TaskStatusServiceImplementation implements TaskStatusService {
 
     private final TaskStatusRepository repository;
@@ -24,37 +25,38 @@ public class TaskStatusServiceImplementation implements TaskStatusService {
     private final TaskStatusMapper mapper;
 
     @Override
+    @Transactional
     public TaskStatusDTO create(TaskStatusCreateDTO data) {
         var item = mapper.map(data);
         repository.save(item);
-        var dto = mapper.map(item);
-        return dto;
+        return mapper.map(item);
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         repository.deleteById(id);
     }
 
+    @Override
     public TaskStatusDTO findById(Long id) {
         var item = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Not Found: " + id));
-        var dto = mapper.map(item);
-        return dto;
+        return mapper.map(item);
     }
 
     @Override
     public List<TaskStatusDTO> getAll() {
-        var items = repository.findAll();
-        var result = items.stream().map(mapper::map).toList();
-        return result;
+        return repository.findAll().stream()
+            .map(mapper::map)
+            .toList();
     }
 
     @Override
+    @Transactional
     public TaskStatusDTO update(TaskStatusUpdateDTO data, Long id) {
         var item = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Not Found"));
         mapper.update(data, item);
         repository.save(item);
-        var dto = mapper.map(item);
-        return dto;
+        return mapper.map(item);
     }
 }

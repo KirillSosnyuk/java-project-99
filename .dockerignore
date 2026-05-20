@@ -1,0 +1,12 @@
+.git
+.github
+.gradle
+build
+**/build
+.idea
+*.iml
+*.md
+var.env
+.env
+.env.*
+!gradle/wrapper/gradle-wrapper.jar

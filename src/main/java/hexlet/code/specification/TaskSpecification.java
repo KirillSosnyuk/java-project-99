@@ -2,16 +2,31 @@ package hexlet.code.specification;
 
 import hexlet.code.dto.TaskParamsDTO;
 import hexlet.code.model.Task;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TaskSpecification {
+
     public Specification<Task> build(TaskParamsDTO params) {
-        return withTitleCont(params.getTitleCont())
+        return withFetchedAssociations()
+            .and(withTitleCont(params.getTitleCont()))
             .and(withAssigneeId(params.getAssigneeId()))
             .and(withStatus(params.getStatus()))
             .and(withLabelId(params.getLabelId()));
+    }
+
+    private Specification<Task> withFetchedAssociations() {
+        return (root, query, criteriaBuilder) -> {
+            if (!Long.class.equals(query.getResultType()) && !long.class.equals(query.getResultType())) {
+                root.fetch("taskStatus", JoinType.LEFT);
+                root.fetch("assignee", JoinType.LEFT);
+                root.fetch("labels", JoinType.LEFT);
+                query.distinct(true);
+            }
+            return criteriaBuilder.conjunction();
+        };
     }
 
     private Specification<Task> withAssigneeId(Long id) {

@@ -1,21 +1,25 @@
-# Используем стабильный образ с JDK 25
-FROM gradle:8.7-jdk21
+# Stage 1: сборка (JDK + Gradle wrapper). Gradle в финальный образ не попадает.
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /app
 
-# Устанавливаем рабочую директорию
-WORKDIR /
+COPY gradle ./gradle
+COPY build.gradle.kts settings.gradle.kts gradlew ./
+RUN chmod +x gradlew && ./gradlew dependencies --no-daemon -q || true
 
-# Копируем всё содержимое проекта в контейнер
-COPY . .
+COPY src ./src
+RUN ./gradlew bootJar -x test --no-daemon \
+    -Porg.gradle.java.installations.auto-download=false
 
-# Исправляем права доступа для Gradle Wrapper
-# Если ваш gradlew лежит внутри папки 'code', измените путь на 'code/gradlew'
-RUN chmod +x gradlew
+# Stage 2: runtime (только JRE + fat-jar), по образцу multi-stage из Docker docs / project-5
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
 
-# Сборка проекта
-# Добавляем флаг отключения автозагрузки JDK, чтобы Gradle использовал системную Java 25
-RUN ./gradlew installDist --no-daemon -Porg.gradle.java.installations.auto-download=false
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
 
-# Команда запуска
-# ВНИМАНИЕ: Проверьте, что путь build/install/app/bin/app верный.
-# Если проект называется иначе, измените 'app' на ваше имя проекта.
-CMD ./build/install/app/bin/app
+COPY --from=build /app/build/libs/app-0.0.1-SNAPSHOT.jar ./app.jar
+
+ENV JAVA_TOOL_OPTIONS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -XX:InitialRAMPercentage=50.0"
+
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]

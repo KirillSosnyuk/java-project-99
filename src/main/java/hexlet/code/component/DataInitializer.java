@@ -7,26 +7,24 @@ import hexlet.code.model.User;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.service.CustomUserDetailsService;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DataInitializer implements ApplicationRunner {
 
-    @Autowired
     private final TaskStatusRepository taskStatusRepository;
 
-    @Autowired
     private final LabelRepository labelRepository;
 
-    @Autowired
     private final CustomUserDetailsService userService;
 
     @Override
+    @Transactional
     public void run(ApplicationArguments args) throws Exception {
         var email = "hexlet@example.com";
         var userData = new User();

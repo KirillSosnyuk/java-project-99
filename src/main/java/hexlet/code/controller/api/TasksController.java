@@ -6,7 +6,7 @@ import hexlet.code.dto.TaskParamsDTO;
 import hexlet.code.dto.TaskUpdateDTO;
 import hexlet.code.service.TaskService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TasksController {
 
     private final TaskService taskService;

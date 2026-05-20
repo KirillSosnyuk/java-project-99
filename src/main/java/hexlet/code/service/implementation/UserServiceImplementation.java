@@ -7,14 +7,15 @@ import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.UserRepository;
-import java.util.List;
-
 import hexlet.code.service.UserService;
-import lombok.AllArgsConstructor;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImplementation implements UserService {
 
     private final UserRepository repository;
@@ -24,37 +25,38 @@ public class UserServiceImplementation implements UserService {
     private final UserMapper userMapper;
 
     @Override
+    @Transactional
     public UserDTO create(UserCreateDTO data) {
         var user = userMapper.map(data);
         repository.save(user);
-        var userDTO = userMapper.map(user);
-        return userDTO;
+        return userMapper.map(user);
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         repository.deleteById(id);
     }
 
+    @Override
     public UserDTO findById(Long id) {
         var user = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Not Found: " + id));
-        var userDTO = userMapper.map(user);
-        return userDTO;
+        return userMapper.map(user);
     }
 
     @Override
     public List<UserDTO> getAll() {
-        var items = repository.findAll();
-        var result = items.stream().map(userMapper::map).toList();
-        return result;
+        return repository.findAllByOrderByIdAsc().stream()
+            .map(userMapper::map)
+            .toList();
     }
 
     @Override
+    @Transactional
     public UserDTO update(UserUpdateDTO data, Long id) {
         var user = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Not Found"));
         userMapper.update(data, user);
         repository.save(user);
-        var userDTO = userMapper.map(user);
-        return userDTO;
+        return userMapper.map(user);
     }
 }

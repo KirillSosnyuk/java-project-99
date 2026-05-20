@@ -7,13 +7,14 @@ import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.service.LabelService;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class LabelServiceImplementation implements LabelService {
 
     private final LabelRepository repository;
@@ -21,37 +22,38 @@ public class LabelServiceImplementation implements LabelService {
     private final LabelMapper mapper;
 
     @Override
+    @Transactional
     public LabelDTO create(LabelCreateDTO data) {
         var item = mapper.map(data);
         repository.save(item);
-        var dto = mapper.map(item);
-        return dto;
+        return mapper.map(item);
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         repository.deleteById(id);
     }
 
+    @Override
     public LabelDTO findById(Long id) {
         var item = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Not Found: " + id));
-        var dto = mapper.map(item);
-        return dto;
+        return mapper.map(item);
     }
 
     @Override
     public List<LabelDTO> getAll() {
-        var items = repository.findAll();
-        var result = items.stream().map(mapper::map).toList();
-        return result;
+        return repository.findAll().stream()
+            .map(mapper::map)
+            .toList();
     }
 
     @Override
+    @Transactional
     public LabelDTO update(LabelUpdateDTO data, Long id) {
         var item = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Not Found"));
         mapper.update(data, item);
         repository.save(item);
-        var dto = mapper.map(item);
-        return dto;
+        return mapper.map(item);
     }
 }

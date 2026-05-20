@@ -9,12 +9,15 @@ import hexlet.code.mapper.TaskMapper;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.service.TaskService;
 import hexlet.code.specification.TaskSpecification;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class TaskServiceImplementation implements TaskService {
 
     private final TaskRepository repository;
@@ -24,38 +27,40 @@ public class TaskServiceImplementation implements TaskService {
     private final TaskSpecification specBuilder;
 
     @Override
+    @Transactional
     public TaskDTO create(TaskCreateDTO data) {
         var item = mapper.map(data);
         repository.save(item);
-        var dto = mapper.map(item);
-        return dto;
+        return mapper.map(item);
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         repository.deleteById(id);
     }
 
+    @Override
     public TaskDTO findById(Long id) {
-        var item = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Not Found: " + id));
-        var dto = mapper.map(item);
-        return dto;
+        var item = repository.findFetchedById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Not Found: " + id));
+        return mapper.map(item);
     }
 
     @Override
     public List<TaskDTO> getAll(TaskParamsDTO params) {
         var spec = specBuilder.build(params);
         var tasks = repository.findAll(spec);
-        var result = tasks.stream().map(mapper::map).toList();
-        return result;
+        return tasks.stream().map(mapper::map).toList();
     }
 
     @Override
+    @Transactional
     public TaskDTO update(TaskUpdateDTO data, Long id) {
-        var item = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Not Found"));
+        var item = repository.findFetchedById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Not Found"));
         mapper.update(data, item);
         repository.save(item);
-        var dto = mapper.map(item);
-        return dto;
+        return mapper.map(item);
     }
 }

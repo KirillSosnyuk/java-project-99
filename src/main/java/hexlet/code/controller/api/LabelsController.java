@@ -5,7 +5,7 @@ import hexlet.code.dto.LabelDTO;
 import hexlet.code.dto.LabelUpdateDTO;
 import hexlet.code.service.LabelService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/labels")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class LabelsController {
 
     private final LabelService labelService;

@@ -1,11 +1,24 @@
 logging:
+  pattern:
+    level: "%5p [traceId=%X{traceId:-} spanId=%X{spanId:-}]"
   level:
     root: WARN
     org:
       springframework:
         security: DEBUG
 
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
 spring:
+  application:
+    name: app
   jpa:
     generate-ddl: true
     show-sql: true
