@@ -10,5 +10,8 @@ import java.util.Set;
 @Repository
 public interface LabelRepository extends JpaRepository<Label, Long> {
     Set<Label> findAllByIdIn(Collection<Long> ids);
+
     Label findByName(String name);
+
+    boolean existsByName(String name);
 }

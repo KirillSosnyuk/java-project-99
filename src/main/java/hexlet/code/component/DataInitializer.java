@@ -10,6 +10,7 @@ import hexlet.code.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,28 +47,40 @@ public class DataInitializer implements ApplicationRunner {
         if (userRepository.findByEmail(SEED_EMAIL).isPresent()) {
             return;
         }
-        var userData = new User();
-        userData.setEmail(SEED_EMAIL);
-        userData.setPassword("qwerty");
-        userService.createUser(userData);
+        try {
+            var userData = new User();
+            userData.setEmail(SEED_EMAIL);
+            userData.setPassword("qwerty");
+            userService.createUser(userData);
+        } catch (DataIntegrityViolationException ignored) {
+            // уже создан другим инстансом или предыдущим запуском
+        }
     }
 
     public void initTaskStatus(String name, String slug) {
-        if (taskStatusRepository.findBySlug(slug) != null) {
+        if (taskStatusRepository.existsBySlug(slug)) {
             return;
         }
-        var taskStatusData = new TaskStatus();
-        taskStatusData.setName(name);
-        taskStatusData.setSlug(slug);
-        taskStatusRepository.save(taskStatusData);
+        try {
+            var taskStatusData = new TaskStatus();
+            taskStatusData.setName(name);
+            taskStatusData.setSlug(slug);
+            taskStatusRepository.save(taskStatusData);
+        } catch (DataIntegrityViolationException ignored) {
+            // slug уже есть в БД
+        }
     }
 
     public void initLabel(String name) {
-        if (labelRepository.findByName(name) != null) {
+        if (labelRepository.existsByName(name)) {
             return;
         }
-        var labelData = new Label();
-        labelData.setName(name);
-        labelRepository.save(labelData);
+        try {
+            var labelData = new Label();
+            labelData.setName(name);
+            labelRepository.save(labelData);
+        } catch (DataIntegrityViolationException ignored) {
+            // name уже есть в БД
+        }
     }
 }
