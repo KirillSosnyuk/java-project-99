@@ -3,9 +3,9 @@ package hexlet.code.component;
 import hexlet.code.model.Label;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
-
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
+import hexlet.code.repository.UserRepository;
 import hexlet.code.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
@@ -17,20 +17,20 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DataInitializer implements ApplicationRunner {
 
+    private static final String SEED_EMAIL = "hexlet@example.com";
+
     private final TaskStatusRepository taskStatusRepository;
 
     private final LabelRepository labelRepository;
+
+    private final UserRepository userRepository;
 
     private final CustomUserDetailsService userService;
 
     @Override
     @Transactional
-    public void run(ApplicationArguments args) throws Exception {
-        var email = "hexlet@example.com";
-        var userData = new User();
-        userData.setEmail(email);
-        userData.setPassword("qwerty");
-        userService.createUser(userData);
+    public void run(ApplicationArguments args) {
+        initUserIfAbsent();
 
         initTaskStatus("Draft", "draft");
         initTaskStatus("To review", "to_review");
@@ -42,7 +42,20 @@ public class DataInitializer implements ApplicationRunner {
         initLabel("feature");
     }
 
+    private void initUserIfAbsent() {
+        if (userRepository.findByEmail(SEED_EMAIL).isPresent()) {
+            return;
+        }
+        var userData = new User();
+        userData.setEmail(SEED_EMAIL);
+        userData.setPassword("qwerty");
+        userService.createUser(userData);
+    }
+
     public void initTaskStatus(String name, String slug) {
+        if (taskStatusRepository.findBySlug(slug) != null) {
+            return;
+        }
         var taskStatusData = new TaskStatus();
         taskStatusData.setName(name);
         taskStatusData.setSlug(slug);
@@ -50,6 +63,9 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     public void initLabel(String name) {
+        if (labelRepository.findByName(name) != null) {
+            return;
+        }
         var labelData = new Label();
         labelData.setName(name);
         labelRepository.save(labelData);
