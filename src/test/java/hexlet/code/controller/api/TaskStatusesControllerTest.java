@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -183,5 +184,19 @@ public class TaskStatusesControllerTest {
 
         var status = statusRepository.findById(testStatus.getId()).orElseThrow();
         assertThat(status.getName()).isNotEqualTo((""));
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+        mockMvc.perform(delete("/api/task_statuses/" + testStatus.getId()).with(token))
+            .andExpect(status().isNoContent());
+
+        assertThat(statusRepository.findById(testStatus.getId())).isEmpty();
+    }
+
+    @Test
+    public void testShowNotFound() throws Exception {
+        mockMvc.perform(get("/api/task_statuses/999999").with(jwt()))
+            .andExpect(status().isNotFound());
     }
 }

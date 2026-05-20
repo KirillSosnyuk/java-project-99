@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -193,5 +194,19 @@ public class UsersControllerTest {
 
         var user = userRepository.findById(testUser.getId()).orElseThrow();
         assertThat(user.getEmail()).isNotEqualTo(("fgvcscgs"));
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+        mockMvc.perform(delete("/api/users/" + testUser.getId()).with(token))
+            .andExpect(status().isNoContent());
+
+        assertThat(userRepository.findById(testUser.getId())).isEmpty();
+    }
+
+    @Test
+    public void testShowNotFound() throws Exception {
+        mockMvc.perform(get("/api/users/999999").with(jwt()))
+            .andExpect(status().isNotFound());
     }
 }

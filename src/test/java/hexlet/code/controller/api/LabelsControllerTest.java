@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -182,5 +183,19 @@ public class LabelsControllerTest {
 
         var label = labelRepository.findById(testLabel.getId()).orElseThrow();
         assertThat(label.getName()).isNotEqualTo((""));
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+        mockMvc.perform(delete("/api/labels/" + testLabel.getId()).with(token))
+            .andExpect(status().isNoContent());
+
+        assertThat(labelRepository.findById(testLabel.getId())).isEmpty();
+    }
+
+    @Test
+    public void testShowNotFound() throws Exception {
+        mockMvc.perform(get("/api/labels/999999").with(jwt()))
+            .andExpect(status().isNotFound());
     }
 }

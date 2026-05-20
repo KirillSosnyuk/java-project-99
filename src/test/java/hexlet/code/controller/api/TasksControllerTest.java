@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -189,5 +190,31 @@ public class TasksControllerTest {
 
         var task = taskRepository.findById(testTask.getId()).orElseThrow();
         assertThat(task.getName()).isNotEqualTo((""));
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+        mockMvc.perform(delete("/api/tasks/" + testTask.getId()).with(token))
+            .andExpect(status().isNoContent());
+
+        assertThat(taskRepository.findById(testTask.getId())).isEmpty();
+    }
+
+    @Test
+    public void testShowNotFound() throws Exception {
+        mockMvc.perform(get("/api/tasks/999999").with(jwt()))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testIndexWithStatusFilter() throws Exception {
+        var slug = testTask.getTaskStatus().getSlug();
+
+        var response = mockMvc.perform(get("/api/tasks").param("status", slug).with(jwt()))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse();
+
+        assertThat(response.getHeader("X-Total-Count")).isEqualTo("1");
     }
 }
